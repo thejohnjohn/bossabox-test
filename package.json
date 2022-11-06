@@ -1,0 +1,30 @@
+{
+  "name": "vuttr-api",
+  "version": "0.0.1",
+  "description": "Mini API for practice purpose.",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thejohnjohn/vuttr-api.git"
+  },
+  "keywords": [
+    "API",
+    "Express",
+    "NodeJS"
+  ],
+  "author": "https://github.com/thejohnjohn",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/thejohnjohn/vuttr-api/issues"
+  },
+  "homepage": "https://github.com/thejohnjohn/vuttr-api#readme",
+  "dependencies": {
+    "express": "^4.18.2",
+    "jsonwebtoken": "^8.5.1",
+    "swagger-jsdoc": "^6.2.5",
+    "swagger-ui-express": "^4.5.0"
+  }
+}
