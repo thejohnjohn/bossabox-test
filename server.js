@@ -3,8 +3,10 @@ const express = require('express');
 const app = express();
 const port = 3000;
 
-app.get('/', (req, res) => {
-  res.send(`Hello, world on port ${port}`);
+const { data } = require('./data.js')
+
+app.get('/tools', (req, res) => {
+	res.send(data);
 });
 
 app.post('/:id', (req, res) => {
