@@ -1,12 +1,11 @@
 const express = require('express');
 
+const { data } = require('./data.js');
+
 const app = express();
 const port = 3000;
 
-const { data } = require('./data.js')
-const { isSubset } = require('./utils/queryhandler');
-
-const attributes = Object.keys(data[0]);
+app.use(express.json());
 
 app.get('/tools', (req, res) => {
   let requestAttributes = Object.keys(req.query);
@@ -15,7 +14,12 @@ app.get('/tools', (req, res) => {
 });
 
 app.post('/tools', (req, res) => {
-  res.send(`You post ${req.params.id}`);
+  data.push(req.body);
+  res.send(res.statusCode);
+});
+
+app.delete('/tools/:id', (req, res) => {
+  res.send(`Delete id ${req.params.id}`);
 });
 
 app.listen(port, () => {
