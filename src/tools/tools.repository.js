@@ -4,8 +4,18 @@ client = new MongoClient('mongodb://localhost:27017/vuttr');
 
 class ToolsRepository {
   async create(tool) {
-    const result = await client.db('vuttr').collection('vuttr').insertOne(tool);
-    console.log(`New listing created with the following id: ${result.insertedId}`);
+    try {
+      await client.connect();
+      
+      const result = await client.db('vuttr').collection('vuttr').insertOne(tool);
+      
+      return result.insertedId;
+
+    } catch (error) {
+      console.error(error);
+    } finally {
+      await client.close();
+    }
   }
 
   async findAll() {
@@ -14,29 +24,66 @@ class ToolsRepository {
     
       const cursor = client.db('vuttr').collection('vuttr').find({});
     
-      console.log((await cursor.toArray()));
-    
+      let fullList = await cursor.toArray();
+
+      return fullList;
+
     } catch (error) {
       console.error(error);
+    } finally {
+      await client.close();
     }
   }
 
-  async findOne(tool) {
-    const { toolId } = tool
-    console.log(toolId);
+  async findOne(id) {
     try {
       await client.connect();
     
-      const cursor = client.db('vuttr').collection('vuttr').find({ id: toolId });
-    
-      console.log((await cursor.toArray()));
+      const cursor = client.db('vuttr').collection('vuttr').find({ id });
+      
+      let result = await cursor.toArray();
+      
+      return result;
     
     } catch (error) {
       console.error(error);
+    } finally {
+      await client.close();
+    }
+  }
+
+  async updateById(id, updatedTool) {
+    try {
+      await client.connect();
+
+      const result = await client.db('vuttr')
+      .collection('vuttr')
+      .updateOne({ id: id }, { $set: updatedTool });
+
+      return result.modifiedCount;
+    } catch (error) {
+      console.error(error);
+    } finally {
+      await client.close();
+    }
+  }
+
+  async deleteById(id) {
+    try {
+      await client.connect();
+
+      const result = await client.db('vuttr').collection('vuttr').deleteOne({ id: id });
+
+      return result.deletedCount;
+
+    } catch (error) {
+      console.error(error);
+    } finally {
+      await client.close();
     }
   }
 }
-const toolsRepository = new ToolsRepository();
-toolsRepository.create().catch();
-toolsRepository.create().catch();
-toolsRepository.create().catch();
+
+module.exports = {
+  ToolsRepository
+};
