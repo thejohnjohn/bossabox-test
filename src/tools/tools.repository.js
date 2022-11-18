@@ -58,7 +58,7 @@ class ToolsRepository {
 
       const result = await client.db('vuttr')
       .collection('vuttr')
-      .updateOne({ id: id }, { $set: updatedTool });
+      .updateOne({ "id": id }, { $set: updatedTool });
 
       return result.modifiedCount;
     } catch (error) {

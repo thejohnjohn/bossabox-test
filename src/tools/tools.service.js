@@ -15,12 +15,11 @@ class ToolsService {
     return this.toolsRepository.findOne(id);
   }
 
-  updateToolById(id) {
-    return this.toolsRepository.updateById(id);
+  updateToolById(id, updatedTool) {
+    return this.toolsRepository.updateById(id, updatedTool);
   }
 
   deleteToolById(id) {
-    console.log(`Bateu no serviceId: ${id}`);
     return this.toolsRepository.deleteById(id);
   }
 }
