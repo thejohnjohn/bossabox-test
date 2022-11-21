@@ -1,89 +1,75 @@
 const { MongoClient } = require('mongodb');
 
-client = new MongoClient('mongodb://localhost:27017/vuttr');
-
 class ToolsRepository {
+  client = new MongoClient('mongodb://localhost:27017/vuttr');
+
   async create(tool) {
     try {
-      await client.connect();
-      
-      const result = await client.db('vuttr').collection('vuttr').insertOne(tool);
-      
-      return result.insertedId;
+      await this.client.connect();
 
+      const result = await this.client.db('vuttr').collection('vuttr').insertOne(tool);
+
+      return result.insertedId;
     } catch (error) {
       console.error(error);
-    } finally {
-      await client.close();
     }
   }
 
   async findAll() {
     try {
-      await client.connect();
-    
-      const cursor = client.db('vuttr').collection('vuttr').find({});
-    
-      let fullList = await cursor.toArray();
+      await this.client.connect();
+
+      const cursor = this.client.db('vuttr').collection('vuttr').find({});
+
+      const fullList = await cursor.toArray();
 
       return fullList;
-
     } catch (error) {
       console.error(error);
-    } finally {
-      await client.close();
     }
   }
 
   async findOne(id) {
     try {
-      await client.connect();
-    
-      const cursor = client.db('vuttr').collection('vuttr').find({ id });
-      
-      let result = await cursor.toArray();
-      
+      await this.client.connect();
+
+      const cursor = this.client.db('vuttr').collection('vuttr').find({ id });
+
+      const result = await cursor.toArray();
+
       return result;
-    
     } catch (error) {
       console.error(error);
-    } finally {
-      await client.close();
     }
   }
 
   async updateById(id, updatedTool) {
     try {
-      await client.connect();
+      await this.client.connect();
 
-      const result = await client.db('vuttr')
-      .collection('vuttr')
-      .updateOne({ "id": id }, { $set: updatedTool });
+      const result = await this.client.db('vuttr')
+        .collection('vuttr')
+        .updateOne({ id }, { $set: updatedTool });
 
       return result.modifiedCount;
     } catch (error) {
       console.error(error);
-    } finally {
-      await client.close();
     }
   }
 
   async deleteById(id) {
     try {
-      await client.connect();
+      await this.client.connect();
 
-      const result = await client.db('vuttr').collection('vuttr').deleteOne({ id: id });
+      const result = await this.client.db('vuttr').collection('vuttr').deleteOne({ id });
 
       return result.deletedCount;
-
     } catch (error) {
       console.error(error);
-    } finally {
-      await client.close();
     }
   }
 }
 
 module.exports = {
-  ToolsRepository
+  ToolsRepository,
 };

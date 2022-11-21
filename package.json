@@ -4,7 +4,8 @@
   "description": "Mini API for practice purpose.",
   "main": "server.js",
   "scripts": {
-    "start": "nodemon server.js"
+    "start": "nodemon server.js",
+    "lint": "npx eslint ."
   },
   "repository": {
     "type": "git",
@@ -29,6 +30,9 @@
     "swagger-ui-express": "^4.5.0"
   },
   "devDependencies": {
+    "eslint": "^8.28.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.26.0",
     "nodemon": "^2.0.20"
   }
 }
