@@ -1,4 +1,5 @@
 const http = require('http');
+const url = require('url');
 
 const { ToolsService } = require('./src/tools/tools.service');
 
@@ -19,23 +20,61 @@ const server = http.createServer(async (request, response) => {
   
   switch (method) {
     case 'GET':
-      let result = await toolsService.getAllTools();
+      let toolList = await toolsService.getAllTools();
      
       response.writeHead(200, { "Content-Type": "application/json" });
-      response.write(JSON.stringify(result));
+      response.write(JSON.stringify(toolList));
       response.end();
     break;
     case 'POST':
       let body = '';
+
       request.on('data', chunk => {
-          body += chunk.toString(); // convert Buffer to string
+        body += chunk.toString();
       });
+
       request.on('end', () => {
-          console.log(body);
-          response.writeHead(200, { "Content-Type": "application/json" });
-          response.end(body);
+        (
+          async(param) => {
+            param = JSON.parse(param);
+            await toolsService.insertTool(param);
+          }
+        )(body); 
+
+        response.writeHead(200, { "Content-Type": "application/json" });
+        response.end(body);
       });
+
     break;
+    case 'PUT':
+      const id = parseInt(url.split('/')[2]);
+      let updatedTool = ''; 
+ 
+      request.on('data', chunk => {
+        updatedTool += chunk.toString();
+      });
+
+      request.on('end', async () => {
+        updatedTool = JSON.parse(updatedTool);
+        await toolsService.updateToolById(id, updatedTool); 
+        
+        response.writeHead(200, { "Content-Type": "application/json" });
+        response.end(JSON.stringify(updatedTool));
+      });
+
+    break;
+    case 'DELETE':
+      const deleteId = parseInt(url.split('/')[2]);
+      console.log(deleteId);
+      (
+        async(param) => {
+          await toolsService.deleteToolById(param); 
+        }
+      )(deleteId);
+      response.writeHead(200, { "Content-Type": "application/json" });
+      response.end('OK');
+    break;
+    
     default:
       response.writeHead(404);
       response.end(`Not found`);
