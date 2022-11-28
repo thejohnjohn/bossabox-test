@@ -180,5 +180,3 @@ Resposta:
 - Deve haver um documento de API Blueprint ou OpenAPI (antigo Swagger) descrevendo sua API;
 - Se você julgar necessário, adequado ou quiser deixar a aplicação mais completa (bônus!) você pode adicionar outras rotas, métodos, meios de autenticação com usuários, etc.
 
-Ao término do desafio, você deve [agendar uma ligação](https://calendly.com/eduardokoller/challenge-review/) com Eduardo Koller (Diretor de Tecnologia da BossaBox) para falar sobre o que você construiu. A ligação ocorrerá via Hangouts, e o link estará presente no convite do evento.
-

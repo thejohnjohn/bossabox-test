@@ -1,25 +1,42 @@
 const http = require('http');
-const url = require('url');
+const querystring = require('querystring');
 
 const { ToolsService } = require('./src/tools/tools.service');
+const { isAuthenticated, createToken } = require('./utils/tokenhandler');
+const { PORT, SECRET, EXPIRES } = require('./constants');
 
 const hostname = '127.0.0.1';
-const port = 3000;
+const port = PORT || 3000;
 
 const toolsService = new ToolsService();
 
 const server = http.createServer(async (request, response) => {
   const { url, method } = request;
+
+  if (url === '/login' && method === 'POST') {
+    let body = '';
+    request.on('data', chunk => {
+      body += chunk.toString();
+    });
+
+    request.on('end', async () => {
+      body = JSON.parse(body);
+      const access_token = createToken(body);
+      
+      response.writeHead(200, { "Content-Type": "application/json" });
+      console.log(JSON.stringify({access_token}));
+
+      response.end();
+    });
+  }
+  
   const regex = /^(\/tools)((\/[0-9]+)|(\?[a-z]+\=[a-z]+((\&[a-z]+\=[a-z]+)+)?))?/;
   const result = regex.exec(url);
   
-  if (!result) {
-    response.writeHead(404);
-    response.end(`The ${url} address is not found.`);
-  }
-  
   switch (method) {
     case 'GET':
+      console.log(querystring.decode(url.split('?')[1]));    
+
       let toolList = await toolsService.getAllTools();
      
       response.writeHead(200, { "Content-Type": "application/json" });
@@ -42,9 +59,10 @@ const server = http.createServer(async (request, response) => {
         )(body); 
 
         response.writeHead(200, { "Content-Type": "application/json" });
-        response.end(body);
+        response.write(body);
       });
 
+      response.end();
     break;
     case 'PUT':
       const id = parseInt(url.split('/')[2]);
@@ -65,7 +83,6 @@ const server = http.createServer(async (request, response) => {
     break;
     case 'DELETE':
       const deleteId = parseInt(url.split('/')[2]);
-      console.log(deleteId);
       (
         async(param) => {
           await toolsService.deleteToolById(param); 
