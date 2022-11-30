@@ -4,25 +4,30 @@ const querystring = require('querystring');
 const { ToolsService } = require('./src/tools/tools.service');
 const { getRequestData } = require('./utils/utils');
 const { isAuthenticated, createToken } = require('./utils/tokenhandler');
-const { PORT, SECRET, EXPIRES } = require('./env');
+const { HOST, PORT } = require('./env');
 
-const hostname = '127.0.0.1';
+const hostname = HOST || '127.0.0.1';
 const port = PORT || 3000;
 
 const toolsService = new ToolsService();
 
 const server = http.createServer(async (request, response) => {
   const { url, method } = request;
- 
-  const regex = /^(\/tools)((\/[0-9]+)|(\?[a-z]+\=[a-z]+((\&[a-z]+\=[a-z]+)+)?))?/;
-  const result = regex.exec(url);
   
   switch (method) {
     case 'GET':
-      console.log(querystring.decode(url.split('?')[1]));    
-
-      let toolList = await toolsService.getAllTools();
-     
+      const parameters = querystring.decode(url.split('?')[1]);    
+      
+      let toolList = '';
+      if (Object.keys(parameters).length === 0) {  
+        toolList = await toolsService.getAllTools();
+      } else {
+        if (Array.isArray(parameters.tags) !== true) {
+          parameters.tags = [parameters.tags];
+        }
+        toolList = await toolsService.getToolsByTag([...parameters.tags]);
+      }
+      
       response.writeHead(200, { "Content-Type": "application/json" });
       response.write(JSON.stringify(toolList));
       response.end();
