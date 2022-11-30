@@ -11,8 +11,8 @@ class ToolsService {
     return this.toolsRepository.findAll();
   }
 
-  getToolById(id) {
-    return this.toolsRepository.findOne(id);
+  getToolsByTag(tag) {
+    return this.toolsRepository.findByTag(tag);
   }
 
   updateToolById(id, updatedTool) {

@@ -19,7 +19,7 @@ class ToolsRepository {
     try {
       await this.client.connect();
 
-      const cursor = this.client.db('vuttr').collection('vuttr').find({});
+      const cursor = this.client.db('vuttr').collection('vuttr').find({}).project({ _id: 0 });
 
       const fullList = await cursor.toArray();
 
@@ -29,11 +29,11 @@ class ToolsRepository {
     }
   }
 
-  async findOne(id) {
+  async findByTag(tag) {
     try {
       await this.client.connect();
 
-      const cursor = this.client.db('vuttr').collection('vuttr').find({ id });
+      const cursor = this.client.db('vuttr').collection('vuttr').find({ tags: { $all: tag } }).project({ _id: 0 });
 
       const result = await cursor.toArray();
 
@@ -73,3 +73,4 @@ class ToolsRepository {
 module.exports = {
   ToolsRepository,
 };
+
