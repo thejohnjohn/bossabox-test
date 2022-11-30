@@ -2,8 +2,9 @@ const http = require('http');
 const querystring = require('querystring');
 
 const { ToolsService } = require('./src/tools/tools.service');
+const { getRequestData } = require('./utils/utils');
 const { isAuthenticated, createToken } = require('./utils/tokenhandler');
-const { PORT, SECRET, EXPIRES } = require('./constants');
+const { PORT, SECRET, EXPIRES } = require('./env');
 
 const hostname = '127.0.0.1';
 const port = PORT || 3000;
@@ -12,24 +13,7 @@ const toolsService = new ToolsService();
 
 const server = http.createServer(async (request, response) => {
   const { url, method } = request;
-
-  if (url === '/login' && method === 'POST') {
-    let body = '';
-    request.on('data', chunk => {
-      body += chunk.toString();
-    });
-
-    request.on('end', async () => {
-      body = JSON.parse(body);
-      const access_token = createToken(body);
-      
-      response.writeHead(200, { "Content-Type": "application/json" });
-      console.log(JSON.stringify({access_token}));
-
-      response.end();
-    });
-  }
-  
+ 
   const regex = /^(\/tools)((\/[0-9]+)|(\?[a-z]+\=[a-z]+((\&[a-z]+\=[a-z]+)+)?))?/;
   const result = regex.exec(url);
   
@@ -44,50 +28,45 @@ const server = http.createServer(async (request, response) => {
       response.end();
     break;
     case 'POST':
-      let body = '';
+      let data = await getRequestData(request);
+      
+      data = JSON.parse(data);
+      
+      if (url === '/login') {
+        let authenticated = isAuthenticated(data);
 
-      request.on('data', chunk => {
-        body += chunk.toString();
-      });
+        if (authenticated === -1) {
+          response.writeHead(401);
+          response.write('Unauthorized');
+        } else {
+          const access_token = createToken(data);
 
-      request.on('end', () => {
-        (
-          async(param) => {
-            param = JSON.parse(param);
-            await toolsService.insertTool(param);
-          }
-        )(body); 
-
+          response.writeHead(200, { "Content-Type": "application/json" });
+          response.write(JSON.stringify({ access_token }));
+        }
+      }
+      
+      if(url === '/tools') {
+        await toolsService.insertTool(tool);
         response.writeHead(200, { "Content-Type": "application/json" });
-        response.write(body);
-      });
-
+        response.write(data);
+      }
+      
       response.end();
     break;
     case 'PUT':
       const id = parseInt(url.split('/')[2]);
-      let updatedTool = ''; 
- 
-      request.on('data', chunk => {
-        updatedTool += chunk.toString();
-      });
-
-      request.on('end', async () => {
-        updatedTool = JSON.parse(updatedTool);
-        await toolsService.updateToolById(id, updatedTool); 
-        
-        response.writeHead(200, { "Content-Type": "application/json" });
-        response.end(JSON.stringify(updatedTool));
-      });
-
+      
+      let updatedTool = await getRequestData(request); 
+      await toolsService.updateToolById(id, updatedTool);
+      
+      response.writeHead(200, { "Content-Type": "application/json" });
+      response.end(JSON.stringify(updatedTool));
     break;
     case 'DELETE':
-      const deleteId = parseInt(url.split('/')[2]);
-      (
-        async(param) => {
-          await toolsService.deleteToolById(param); 
-        }
-      )(deleteId);
+      const idToDelete = parseInt(url.split('/')[2]);
+      await toolsService.deleteToolById(idToDelete);
+      
       response.writeHead(200, { "Content-Type": "application/json" });
       response.end('OK');
     break;

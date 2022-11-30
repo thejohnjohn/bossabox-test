@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 const userdb = require('./users.json'); 
-const { SECRET_KEY } = require('../constants');
+const { SECRET_KEY } = require('../env');
 
 const expiresIn = '150s';
 
