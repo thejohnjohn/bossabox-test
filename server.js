@@ -3,7 +3,7 @@ const querystring = require('querystring');
 
 const { ToolsService } = require('./src/tools/tools.service');
 const { getRequestData } = require('./utils/utils');
-const { isAuthenticated, createToken } = require('./utils/tokenhandler');
+const { isAuthenticated, createToken, verifyToken } = require('./utils/tokenhandler');
 const { HOST, PORT } = require('./env');
 
 const hostname = HOST || '127.0.0.1';
@@ -52,7 +52,7 @@ const server = http.createServer(async (request, response) => {
       }
       
       if(url === '/tools') {
-        await toolsService.insertTool(tool);
+        data = await toolsService.insertTool(data);
         response.writeHead(200, { "Content-Type": "application/json" });
         response.write(data);
       }
@@ -62,8 +62,21 @@ const server = http.createServer(async (request, response) => {
     case 'PUT':
       const id = parseInt(url.split('/')[2]);
       
+      let headers = request.rawHeaders;
+     
+      let authorizationIndex = headers.indexOf('Authorization') + 1;
+
+      let token = headers[authorizationIndex].split('Bearer ')[1];
+
+      let result = verifyToken(token);
+     
+      if(result instanceof Error) {
+        response.writeHead(200, { "Content-Type": "application/json" });
+        response.end('Access expired.');
+      }
+
       let updatedTool = await getRequestData(request); 
-      await toolsService.updateToolById(id, updatedTool);
+      await toolsService.updateToolById(id, JSON.parse(updatedTool));
       
       response.writeHead(200, { "Content-Type": "application/json" });
       response.end(JSON.stringify(updatedTool));
