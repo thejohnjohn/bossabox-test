@@ -32,13 +32,19 @@ class Xpress {
     // eslint-disable-next-line no-param-reassign
     res = this.setupResponse(res);
 
-    if (!this.router[req.method][req.url]) {
+    const result = Object.keys(this.router[req.method]).filter((route) => {
+      return new RegExp(route).test(req.url);
+    });
+   
+    const str = result.pop();
+
+    if (result !== []) {
+      this.router[req.method][str](req, res);
+    } else {
       res.statusCode = 404;
       res.write('not found');
       return res.end();
     }
-
-    this.router[req.method][req.url](req, res);
   }
 
   // eslint-disable-next-line class-methods-use-this
