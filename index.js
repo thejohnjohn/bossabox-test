@@ -40,10 +40,10 @@ xpress.post('/tools', async (request, response) => {
   response.status(200).send(JSON.stringify(insertedData));
 });
 
-xpress.get('/tools', async (request, response) => {
+xpress.get('/tools/[0-9]+', async (request, response) => {
   const { url } = request;
   const parameters = querystring.decode(url.split('?')[1]);
-
+  
   let toolList = '';
   if (Object.keys(parameters).length === 0) {
     toolList = await toolsService.getAllTools();
@@ -58,7 +58,7 @@ xpress.get('/tools', async (request, response) => {
   response.status(200).send(JSON.stringify(toolList));
 });
 
-xpress.put('/tools/4', async (request, response) => {
+xpress.put('/tools/[0-9]+', async (request, response) => {
   const { url, body } = request;
   const id = parseInt(url.split('/')[2], 10);
 
@@ -75,7 +75,7 @@ xpress.put('/tools/4', async (request, response) => {
   response.status(200).send(JSON.stringify(updatedTool));
 });
 
-xpress.del('/tools/4', async (request, response) => {
+xpress.del('/tools/[0-9]+', async (request, response) => {
   const idToDelete = parseInt(request.url.split('/')[2], 10);
   await toolsService.deleteToolById(idToDelete);
 
