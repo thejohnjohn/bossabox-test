@@ -14,7 +14,7 @@ class Xpress {
       GET: {},
       POST: {},
       PUT: {},
-      DEL: {},
+      DELETE: {},
     };
   }
 
@@ -22,7 +22,7 @@ class Xpress {
     this.get = this.registerRoute('GET');
     this.post = this.registerRoute('POST');
     this.put = this.registerRoute('PUT');
-    this.del = this.registerRoute('DEL');
+    this.del = this.registerRoute('DELETE');
   }
 
   // eslint-disable-next-line consistent-return
@@ -31,12 +31,29 @@ class Xpress {
     req = await this.setupRequest(req);
     // eslint-disable-next-line no-param-reassign
     res = this.setupResponse(res);
-  
-    const routes = Object.keys(this.router[req.method]).toString().replace(',', '|');
+
+    const routes = Object.keys(this.router[req.method]);
+
+    console.log(`Array com todas as rotas pelo método ${req.method}: ${routes}`);
+
+    let routeIsValid;
+    let result;
+
+    routes.forEach((item) => {
+      var regex = new RegExp(item);
+
+      console.log(`Regex: ${regex} | URL da requisição: ${req.url}`);
+
+      console.log(`Resultado: ${regex.test(req.url)}`);
+
+      routeIsValid = regex.test(req.url);
+
+      result = routeIsValid ? item : null
+
+      console.log(`Resultado da rota: ${result}`);
+    });
     
-    const result = (routes).replace(req.url);
-    
-    if (result !== []) {
+    if (routeIsValid) {
       this.router[req.method][result](req, res);
     } else {
       res.statusCode = 404;
